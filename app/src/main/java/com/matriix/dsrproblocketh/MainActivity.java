@@ -110,7 +110,8 @@ public class MainActivity extends AppCompatActivity {
                         "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
                         "0x6982508145454ce325ddbe47a25d4ec3d2311933",
                         "0x0f5d2fb29fb7d3cfee444a200298f468908cc942",
-                        "0x68749665FF8D2d112Fa859AA293F07A622782F38"
+                        "0x68749665FF8D2d112Fa859AA293F07A622782F38",
+                        "0xcf0c122c6b73ff809c693db761e7baebe62b6a2e"
 
                         // Ajoutez d'autres adresses de contrats ERC20 connus ici
                 };
