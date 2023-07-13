@@ -14,13 +14,13 @@
         android:theme="@style/Theme.DsrProBlockEth"
         tools:targetApi="31">
         <activity
-            android:name=".EthBlock"
+            android:name=".MainActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity2"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".EthBlock"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
