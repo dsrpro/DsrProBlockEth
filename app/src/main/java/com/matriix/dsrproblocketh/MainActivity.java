@@ -1,8 +1,11 @@
 package com.matriix.dsrproblocketh;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String INFURA_PROJECT_ID = "345123047cc74565857cc86473bedd51";
     private TextView textViewTokenBalances;
     private ListView listViewTokenBalances;
+    private Button btnNext;
 
 
     @Override
@@ -39,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         ethBalanceTextView = findViewById(R.id.textViewBalance);
         tokenBalancesTextView = findViewById(R.id.textViewTokenBalances);
         listViewTokenBalances = findViewById(R.id.listViewTokenBalances);
+        btnNext = findViewById(R.id.btnNext);
         //ethereumManager = new EthereumManager("deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeddeaddeadd", "https://mainnet.infura.io/v3/345123047cc74565857cc86473bedd51");
         //ethereumManager = new EthereumManager(PRIVATE_KEY, INFURA_PROJECT_ID);
         //deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeddeaddeadd
@@ -86,6 +91,22 @@ public class MainActivity extends AppCompatActivity {
         Credentials credentials = Credentials.create(PRIVATE_KEY);
         MainActivityNew.GetEthereumBalanceTask task = new MainActivityNew.GetEthereumBalanceTask(web3j, credentials);
         task.execute();*/
+
+
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    // Code à exécuter lors du clic sur le bouton
+                    Intent intent = new Intent(MainActivity.this, EthBlock.class);
+                    startActivity(intent);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
     }
 
 
