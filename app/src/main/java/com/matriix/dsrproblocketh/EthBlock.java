@@ -3,6 +3,8 @@ package com.matriix.dsrproblocketh;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -22,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class EthBlock extends AppCompatActivity {
@@ -45,19 +48,28 @@ public class EthBlock extends AppCompatActivity {
         listViewTokenBalances = findViewById(R.id.listViewTokenBalances);
         //ethereumManager = new EthereumManager("deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeddeaddeadd", "https://mainnet.infura.io/v3/345123047cc74565857cc86473bedd51");
         //ethereumManager = new EthereumManager(PRIVATE_KEY, INFURA_PROJECT_ID);
+        // Créez le répertoire "application"
+        File appDirectory = createAppDirectory();
+        // Utilisez le répertoire pour stocker ou accéder aux données de l'application
+        // ...
+        File file = new File(appDirectory, "dataDsrProBlock.txt");
+        try {
+            file.createNewFile();
+            // Écrivez ou lisez les données dans le fichier
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         if (MainActivityNew.NetworkUtils.isNetworkAvailable(this)) {
             // Connexion Internet disponible, effectuer des opérations réseau ici
-            Toast.makeText(this, "connexion Internet Disponible", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "connexion Internet Disponible", Toast.LENGTH_LONG).show();
             try {
                 String[] privateKeys = readPrivateKeyFromFile();
                 // Initialisez Web3j avec votre URL de réseau
-                Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID"));
+                Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/"+INFURA_PROJECT_ID));
                 for (String privateKey : privateKeys) {
                     // Utilisez la clé privée ici
-                    // ...
                     // Effectuez vos opérations avec la clé privée dans la boucle
-                    // ...
                     KPrive = privateKey;
                     Credentials credentials = Credentials.create(KPrive);
                     LoadPrivateKeysTask task = new LoadPrivateKeysTask(web3j, credentials, EthBlock.this);
@@ -69,46 +81,57 @@ public class EthBlock extends AppCompatActivity {
             }
         } else {
             // Pas de connexion Internet, afficher un message d'erreur ou prendre une autre action appropriée
-            Toast.makeText(this, "Pas de connexion Internet", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Pas de connexion Internet", Toast.LENGTH_LONG).show();
         }
     }
 
     private String[] readPrivateKeyFromFile() {
-        // Chemin du fichier config.txt
-        String filePath = "com/matriix/dsrproblocketh/assets/config.txt";
 
-        try {
-            // Ouvrir le fichier config.txt
-            File file = new File(filePath);
-            FileReader fileReader = new FileReader(file);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
+        File file = new File
+                (Environment.getExternalStorageDirectory(), "//applicationDsrPro//config.ini");
+        if (file.exists()) {
+            // Le fichier existe
+            Toast.makeText(this, "Le fichier config.ini existe", Toast.LENGTH_LONG).show();
+            if (file.canRead()) {
+                // Le fichier est lisible
+                Toast.makeText(this, "Le fichier config.ini est lisible", Toast.LENGTH_LONG).show();
+                ArrayList<String> privateKeyList = new ArrayList<>();
+                Log.d("TAG", "Répertoire lu avec succès");
+                try {
+                    BufferedReader reader = new BufferedReader(new FileReader(file));
+                    String line;
+                    // Lire chaque ligne du fichier
+                    while ((line = reader.readLine()) != null) {
+                        String[] privateKeys = line.split(";");
+                        for (String key : privateKeys) {
+                            if (!key.trim().isEmpty()) {
+                                privateKeyList.add(key.trim());
+                                System.out.println("Résultat obtenu du config : " + privateKeyList);
+                            }
+                        }
+                    }
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return new String[0]; // En cas d'erreur, retourne un tableau vide
+                }
 
-            List<String> privateKeys = new ArrayList<>();
+                // Convertir la liste en tableau de chaînes
+                String[] privateKeyArray = new String[privateKeyList.size()];
+                privateKeyArray = privateKeyList.toArray(privateKeyArray);
 
-            String line;
-            // Lire chaque ligne du fichier
-            while ((line = bufferedReader.readLine()) != null) {
-                // Ajouter la clé privée à la liste
-                privateKeys.add(line.trim());
+                return privateKeyArray;
+            } else {
+                // Le fichier n'est pas lisible
+                Toast.makeText(this, "Le fichier config.ini n'est pas lisible", Toast.LENGTH_LONG).show();
             }
-
-            // Fermer le fichier
-            bufferedReader.close();
-
-            // Convertir la liste en tableau de chaînes
-            String[] privateKeyArray = new String[privateKeys.size()];
-            privateKeys.toArray(privateKeyArray);
-
-            return privateKeyArray;
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
+            // Le fichier n'existe pas
+            Toast.makeText(this, "Le fichier config.ini n'existe pas", Toast.LENGTH_LONG).show();
         }
 
-        return new String[0]; // Retourner un tableau vide si une erreur s'est produite
+         return new String[0];
     }
-
-
 
     private class LoadPrivateKeysTask extends AsyncTask<Void, Void, Void> {
 
@@ -121,7 +144,6 @@ public class EthBlock extends AppCompatActivity {
             this.credentials = credentials;
             this.context = context;
         }
-
         public LoadPrivateKeysTask() {
             super();
         }
@@ -131,7 +153,6 @@ public class EthBlock extends AppCompatActivity {
             // Utiliser la clé privée pour obtenir les soldes ETH et tokens
             // Effectuer les opérations souhaitées avec les soldes
             // Parcourir la liste des clés privées
-
             StringBuilder balancesBuilder = new StringBuilder();
 
             try {
@@ -166,9 +187,7 @@ public class EthBlock extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             //return balancesBuilder.toString();
-
             return null;
         }
         private void processPrivateKey(String privateKey) {
@@ -194,6 +213,45 @@ public class EthBlock extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+    private File createAppDirectory() {
+        // Obtenez le répertoire racine de l'espace de stockage externe
+        File rootDir = getExternalFilesDir(null);
+
+        // Créez un sous-répertoire nommé "applicationDsrPro" dans le répertoire racine
+        File appDir = new File(rootDir, "applicationDsrPro");
+
+        // Vérifiez si le répertoire existe déjà, sinon créez-le
+        if (!appDir.exists()) {
+            appDir.mkdirs();
+            if (appDir.mkdirs()) {
+                Log.d("TAG", "Répertoire créé avec succès");
+            } else {
+                Log.d("TAG", "Échec de la création du répertoire");
+            }
+        }
+
+        return appDir;
+    }
+
+    private File createAppDirectory(String Directory) {
+        // Obtenez le répertoire racine de l'espace de stockage externe
+        File rootDir = getExternalFilesDir(null);
+
+        // Créez un sous-répertoire nommé "applicationDsrPro" dans le répertoire racine
+        File appDir = new File(rootDir, Directory);
+
+        // Vérifiez si le répertoire existe déjà, sinon créez-le
+        if (!appDir.exists()) {
+            appDir.mkdirs();
+            if (appDir.mkdirs()) {
+                Log.d("TAG", "Répertoire créé avec succès");
+            } else {
+                Log.d("TAG", "Échec de la création du répertoire");
+            }
+        }
+
+        return appDir;
     }
 
 
