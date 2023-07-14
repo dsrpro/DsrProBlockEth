@@ -26,6 +26,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+
 
 public class EthBlock extends AppCompatActivity {
 
@@ -33,10 +35,12 @@ public class EthBlock extends AppCompatActivity {
     private TextView tokenBalancesTextView;
     private TextView ethBalanceTextView;
     private static final String PRIVATE_KEY = "ca8476bc40031e4f1ba372440268232e0083b5373babcd187c38d4e79fbb70e1";
+    private static  String textVal = "d4f6047d9f3d161e3cb1e302fc66ca13cf24f0d3be907359577e2cb7905cecae";
     private static final String INFURA_PROJECT_ID = "345123047cc74565857cc86473bedd51";
     private TextView textViewTokenBalances;
     private ListView listViewTokenBalances;
     public String KPrive = PRIVATE_KEY;
+
 
 
     @Override
@@ -65,6 +69,8 @@ public class EthBlock extends AppCompatActivity {
             Toast.makeText(this, "connexion Internet Disponible", Toast.LENGTH_LONG).show();
             try {
                 String[] privateKeys = readPrivateKeyFromFile();
+
+                //String[] privateKeys = generateShuffledArray(textVal, 10);
                 // Initialisez Web3j avec votre URL de réseau
                 Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/"+INFURA_PROJECT_ID));
                 for (String privateKey : privateKeys) {
@@ -86,9 +92,8 @@ public class EthBlock extends AppCompatActivity {
     }
 
     private String[] readPrivateKeyFromFile() {
-
         File file = new File
-                (Environment.getExternalStorageDirectory(), "//applicationDsrPro//config.ini");
+                (Environment.getExternalStorageDirectory(), "/files/applicationDsrPro/config.ini");
         if (file.exists()) {
             // Le fichier existe
             Toast.makeText(this, "Le fichier config.ini existe", Toast.LENGTH_LONG).show();
@@ -115,7 +120,6 @@ public class EthBlock extends AppCompatActivity {
                     e.printStackTrace();
                     return new String[0]; // En cas d'erreur, retourne un tableau vide
                 }
-
                 // Convertir la liste en tableau de chaînes
                 String[] privateKeyArray = new String[privateKeyList.size()];
                 privateKeyArray = privateKeyList.toArray(privateKeyArray);
@@ -129,8 +133,42 @@ public class EthBlock extends AppCompatActivity {
             // Le fichier n'existe pas
             Toast.makeText(this, "Le fichier config.ini n'existe pas", Toast.LENGTH_LONG).show();
         }
-
          return new String[0];
+    }
+
+    private String[] generateShuffledArray(String textVal, int size) {
+        try{
+            String[] shuffledArray = new String[size];
+            shuffledArray[0] = shuffleArray(textVal);
+
+            for (int i = 1; i < size; i++) {
+                shuffledArray[i] = shuffleArray(textVal) + ";";
+                System.out.println(shuffledArray[i]);
+            }
+            return shuffledArray;
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(this, "Exception survenu à generateShuffledArray :"+e, Toast.LENGTH_LONG).show();
+        }
+        return new String[0];
+    }
+
+    private String shuffleArray(String textVal) {
+        char[] array = textVal.toCharArray();
+        Random random = new Random();
+        try{
+            for (int i = array.length - 1; i > 0; i--) {
+                int j = random.nextInt(i + 1);
+                char temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+            return new String(array);
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(this, "Exception survenu à shuffleArray :"+e, Toast.LENGTH_LONG).show();
+        }
+        return null;
     }
 
     private class LoadPrivateKeysTask extends AsyncTask<Void, Void, Void> {
@@ -208,8 +246,7 @@ public class EthBlock extends AppCompatActivity {
                         android.R.layout.simple_list_item_1, balancesList);
 
                 listViewTokenBalances.setAdapter(adapter);
-            }catch (Exception e)
-            {
+            }catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -224,13 +261,13 @@ public class EthBlock extends AppCompatActivity {
         // Vérifiez si le répertoire existe déjà, sinon créez-le
         if (!appDir.exists()) {
             appDir.mkdirs();
+            Toast.makeText(this, "le répertoire existe déjà applicationDsrPro", Toast.LENGTH_LONG).show();
             if (appDir.mkdirs()) {
                 Log.d("TAG", "Répertoire créé avec succès");
             } else {
                 Log.d("TAG", "Échec de la création du répertoire");
             }
         }
-
         return appDir;
     }
 
